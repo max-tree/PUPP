@@ -21,6 +21,16 @@ def create_Agilent_plot(x, y, yName, file):
     plt.ylabel(yName +' (dB)')
 
 
+def create_Agilent_real_and_memory_trace_plot(x, y, ym, yName, file):
+    fileName = file.name.split('/')[-1]
+    plt.figure("File " + fileName + ". " + yName)
+    plt.plot(x, y, label="Data Trace Real")
+    plt.plot(x, ym, label="Memory Trace Real")
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel(yName +' (dB)')
+    plt.legend()
+
+
 def plot_Agient_4395A():
     files = get_files(type="TXT")
     for file in files:
@@ -32,14 +42,18 @@ def plot_Agient_4395A():
         mtr = df['Memory Trace Real'].to_numpy()  # Real values saved to memory. This is usuallya spectrum analysis put into memory for estalbishing a baseline.
         mti = df['Memory Trace Imag'].to_numpy()
 
-        create_Agilent_plot(freq, dtr, "Data Trace Real", file)
-        # create_Agilent_plot(freq, dti, "Data Trace Imag", file)
-        # create_Agilent_plot(freq, mtr, "Memory Trace Real", file)
-        # create_Agilent_plot(freq, mti, "Memory Trace Imag", file)
+        # create_Agilent_plot(freq, dtr, "Data Trace Real", file)
+        # # create_Agilent_plot(freq, dti, "Data Trace Imag", file)
+        # # create_Agilent_plot(freq, mtr, "Memory Trace Real", file)
+        # # create_Agilent_plot(freq, mti, "Memory Trace Imag", file)
+
+        create_Agilent_real_and_memory_trace_plot(freq, dtr, mtr, "Amplitude", file)
 
         # Extract important points
         print("Peak amplitude of Data Trace Real = ", np.min(dtr), " dB")
         print("Frequency at peak amplitude of Data Trace Real = ", freq[np.argmin(dtr)], " Hz")
+        print("Peak amplitude of Data Trace Memory = ", np.min(mtr), " dB")
+        print("Frequency at peak amplitude of Memory Trace Real = ", freq[np.argmin(mtr)], " Hz")
     plt.show()
     return
 
@@ -58,8 +72,8 @@ def calculate_balance_inductor():
 
 def main():
     print("Hello Piezoelectric World")
-    # plot_Agient_4395A()
-    calculate_balance_inductor()
+    plot_Agient_4395A()
+    # calculate_balance_inductor()
 
 
 if __name__ == "__main__":
