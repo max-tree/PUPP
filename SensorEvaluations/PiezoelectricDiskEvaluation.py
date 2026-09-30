@@ -44,10 +44,22 @@ def plot_Agient_4395A():
     return
 
 
+def calculate_balance_inductor():
+    # This function assumes you know the base capacitance of the system the frequency of resonance.
+    C = 17.4*10**-9  # F
+    f = 5248.0  # Hz. The frequency at which resonance occurs.
+    # From Physics for engineers and scientists by Serway and Jewett page 1013, we see how to improve the resonance
+    # which is that we need to cancel out the reactance terms.
+    omega = 2.0*np.pi*f
+    Xc = 1.0/(omega*C)
+    # We know Xl = omega*L and we want Xc=Xl, solving for L:
+    L = 1.0/(omega**2*C)
+    print("You need a " , L, " H inductor to balance the capacitor " , C, " F at ", f, " Hz")
+
 def main():
     print("Hello Piezoelectric World")
-    plot_Agient_4395A()
-    # calculate_balance_inductor()
+    # plot_Agient_4395A()
+    calculate_balance_inductor()
 
 
 if __name__ == "__main__":
