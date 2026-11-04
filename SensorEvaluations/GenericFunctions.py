@@ -33,10 +33,10 @@ def create_xy_scatter_plot(x, y, xLabel, yLabel, figTitle):
     return
 
 
-def create_xy_plot(x, y, xLabel, yLabel, figTitle):
+def create_xy_plot(x, y, color, xLabel, yLabel, figTitle):
     plt.figure(figTitle)
     plt.title(figTitle)
-    plt.plot(x, y, color='k')
+    plt.plot(x, y, color=color)
     plt.xlabel(xLabel)
     plt.ylabel(yLabel)
     return
