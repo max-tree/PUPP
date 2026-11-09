@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from scipy.fft import fft, fftfreq
+from scipy.signal import butter, filtfilt
 
 from GenericFunctions import *
 
@@ -29,6 +30,47 @@ def plot_EMER():
     return
 
 
+def butter_lowpass_filter(data, cutoff, fs, order=1):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='low')
+    return filtfilt(b, a, data)
+
+
+def plot_EMER_breathing_filt():
+    files = get_files(type="lvm")
+    for file in files:
+        print("FILE: ", file.name.split('/')[-1])
+        df = pd.read_csv(file, sep="\t", skiprows=22)
+        time = df['Time'].to_numpy()
+        Vout = df['Vout'].to_numpy()
+
+
+
+        # Apply breathing filter
+        # nanIndicies = np.isnan(Vout)  # the issue with this is I am deleteing the first nan but then shifting the indices
+        # for i, nani in enumerate(nanIndicies):
+        #     print(i)
+        #     if nani:
+        #         Vout = np.delete(Vout, i)
+        #         time = np.delete(time, i)
+        #         print("nan detected")
+        valid = np.isfinite(time) & np.isfinite(Vout)  # remove nans to avoid filter issues
+        time = time[valid]
+        Vout = Vout[valid]
+
+        fs = 1.0/(time[1]-time[0])
+        print("fs = ", fs, "Hz")
+        cutoff = 1.0
+        filtered = butter_lowpass_filter(Vout, cutoff, fs)
+        # create_xy_scatter_plot(time, Vout, "Time (s)", "Voltage (V)" , file.name.split('/')[-1])
+        create_xy_plot(time, Vout, "cyan", "Time (s)", "Voltage (V)" , file.name.split('/')[-1])
+        create_xy_plot(time, filtered, "k", "Time (s)", "Voltage (V)" , file.name.split('/')[-1])
+
+    plt.show()
+    return
+
+
 def plot_EMER_FFT():
     files = get_files(type="lvm")
     for file in files:
@@ -36,6 +78,10 @@ def plot_EMER_FFT():
         df = pd.read_csv(file, sep="\t", skiprows=22)
         time = df['Time'].to_numpy()
         Vout = df['Vout'].to_numpy()
+
+        valid = np.isfinite(time) & np.isfinite(Vout)  # remove nans to avoid filter issues
+        time = time[valid]
+        Vout = Vout[valid]
 
         # create_xy_scatter_plot(time, Vout, "Time (s)", "Voltage (V)" , file.name.split('/')[-1])
         create_xy_plot(time, Vout, "k", "Time (s)", "Voltage (V)" , file.name.split('/')[-1] + " Reduce Data to Red")  # plot all
@@ -45,8 +91,10 @@ def plot_EMER_FFT():
         # endIndex = 1990
         # startIndex = 450  # WeightPredictionLayingDown_x_68p8_1__10-23-2026_2-49-PM.lvm
         # endIndex = 1500
-        startIndex = 0  # HeartBeat_againstChest_1__10-26-2026_3-49-PM.lvm
-        endIndex = -1
+        startIndex = 400  # HeartBeat_againstChest_1__10-26-2026_3-49-PM.lvm
+        endIndex = -150
+        # startIndex = 0  # HeartBeat_againstChest_1__10-26-2026_3-49-PM.lvm
+        # endIndex = -1
         create_xy_plot(time[startIndex:endIndex], Vout[startIndex:endIndex], "r", "Time (s)", "Voltage (V)" , file.name.split('/')[-1]+ " Reduce Data to Red")  # plot cuts
 
         signal = Vout[startIndex:endIndex]
@@ -66,7 +114,8 @@ def plot_EMER_FFT():
 
 def main():
     print("Hello EM World")
-    plot_EMER()
+    # plot_EMER()
+    plot_EMER_breathing_filt()
     # plot_EMER_FFT()  # meant for laying down data or at least involves a body of some kind.
 
 if __name__ == "__main__":
