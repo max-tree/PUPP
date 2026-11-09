@@ -59,6 +59,7 @@ def plot_EMER_breathing_filt():
         time = time[valid]
         Vout = Vout[valid]
 
+
         fs = 1.0/(time[1]-time[0])
         print("fs = ", fs, "Hz")
         cutoff = 1.0
